@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -16,37 +17,70 @@ type Product struct {
 	ProductID       int           `json:"ProductID"`
 	ProductType     string        `json:"ProductType"`
 	ProductUnitCost []ProductCost `json:"ProductUnitCost"`
-	ProductWeight   int           `json:"ProductWeight"`
 }
 
-type MegaventoryList struct {
+type SupplierClient struct {
+	SupplierClientID   int    `json:"SupplierClientID"`
+	SupplierClientType string `json:"SupplierClientType"`
+	SupplierClientName string `json:"SupplierClientName"`
+}
+
+type ProductList struct {
 	MvProducts []Product `json:"mvProducts"`
 }
 
+type SupplierClientList struct {
+	MvSupplierClient SupplierClient `json:"mvSupplierClient"`
+}
+
 func main() {
-	url := "https://api.megaventory.com/v2017a/json/reply/ProductGet?APIKEY=8ccd0b3378ef30a5@m140829"
+	urlGet := "https://api.megaventory.com/v2017a/json/reply/ProductGet?APIKEY=8ccd0b3378ef30a5@m140829"
+	urlPost := "https://api.megaventory.com/v2017a/SupplierClient/SupplierClientUpdate"
+
+	requestBody := bytes.NewBufferString(`{
+        "APIKEY": "8ccd0b3378ef30a5@m140829",
+        "mvSupplierClient": {
+          "SupplierClientID": 0,
+          "SupplierClientType": "Client25",
+          "SupplierClientName": "My dummy client25"
+        },
+        "mvRecordAction": "Insert"
+      }`)
 
 	// repository
-	response, err := http.Get(url)
-	if err != nil {
-		fmt.Println("Error getting values: ", err)
+	responseGet, errGet := http.Get(urlGet)
+	if errGet != nil {
+		fmt.Println("Get error: ", errGet)
 		return
 	}
-	defer response.Body.Close()
+	defer responseGet.Body.Close()
+
+	responsePost, errPost := http.Post(urlPost, "application/json", requestBody)
+	if errPost != nil {
+		fmt.Println("Post error: ", errPost)
+	}
+	defer responsePost.Body.Close()
 
 	// service
-	var megaventoryList MegaventoryList
-	err = json.NewDecoder(response.Body).Decode(&megaventoryList)
-	if err != nil {
-		fmt.Println("Result is not parsed: ", err)
+	var productList ProductList
+	errG := json.NewDecoder(responseGet.Body).Decode(&productList)
+	if errG != nil {
+		fmt.Println("responseGet is not parsed: ", errG)
 		return
+	}
+
+	var supplierClientList SupplierClientList
+	errP := json.NewDecoder(responsePost.Body).Decode(&supplierClientList)
+	if errP != nil {
+		fmt.Println("responsePost is not parsed: ", errP)
 	}
 
 	// controller
-	for _, product := range megaventoryList.MvProducts {
-		for _, cost := range product.ProductUnitCost {
-			fmt.Printf("ProductID: %v   ProductType: %v   ProductUnitCost: %v   ProductWeight: %v\n",
-				product.ProductID, product.ProductType, cost.CompanyName, product.ProductWeight)
-		}
-	}
+	// for _, product := range productList.MvProducts {
+	// 	fmt.Printf("ProductID: %v   ProductType: %v   ProductUnitCost: %v\n",
+	// 		product.ProductID, product.ProductType, product.ProductUnitCost)
+	// }
+
+	fmt.Println(responseGet.Header.Get("Content-Type"))
+	fmt.Println(responsePost.Header.Get("Content-Type"))
 }
