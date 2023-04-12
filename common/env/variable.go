@@ -1,21 +1,10 @@
 package env
 
 import (
-	"bytes"
 	"os"
 
 	"github.com/joho/godotenv"
 )
-
-var eRequestBody = bytes.NewBufferString(`{
-    "APIKEY": "8ccd0b3378ef30a5@m140829",
-    "mvSupplierClient": {
-        "SupplierClientID": 0,
-        "SupplierClientType": "Client33",
-        "SupplierClientName": "My dummy client33"
-    },
-    "mvRecordAction": "Insert"
-}`)
 
 var (
 	URL         string
@@ -23,7 +12,7 @@ var (
 	POS         string
 	KEY         string
 	HOST        string
-	RequestBody *bytes.Buffer
+	RequestBody []byte
 )
 
 func Load() {
@@ -34,5 +23,5 @@ func Load() {
 	POS = os.Getenv("POS")
 	KEY = os.Getenv("KEY")
 	HOST = os.Getenv("HOST")
-	RequestBody = eRequestBody
+	RequestBody = requestBodyMapper()
 }

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"bytes"
 	"fmt"
 	"megaventory/common/env"
 	"net/http"
@@ -27,7 +28,7 @@ func (database) GetProducts() *http.Response {
 }
 
 func (database) PostProducts() *http.Request {
-	response, err := http.NewRequest("POST", env.URL+env.POS, env.RequestBody)
+	response, err := http.NewRequest("POST", env.URL+env.POS, bytes.NewBuffer(env.RequestBody))
 	if err != nil {
 		fmt.Println("Post error: ", err)
 	}
