@@ -10,28 +10,56 @@ import (
 
 // variables
 var (
-	URL = "https://api.megaventory.com/v2017a/"
+	eURL = "https://api.megaventory.com/v2017a/"
 
-	GET = "json/reply/ProductGet?APIKEY="
-	POS = "SupplierClient/SupplierClientUpdate"
+	eGET = "json/reply/ProductGet?APIKEY="
+	ePOS = "SupplierClient/SupplierClientUpdate"
 
-	KEY = "8ccd0b3378ef30a5@m140829"
+	eKEY = "8ccd0b3378ef30a5@m140829"
 
-	HOST = ":8080"
+	eHOST = ":8080"
+
+	eRequestBody = bytes.NewBufferString(`{
+		"APIKEY": "8ccd0b3378ef30a5@m140829",
+		"mvSupplierClient": {
+		  "SupplierClientID": 0,
+		  "SupplierClientType": "Client33",
+		  "SupplierClientName": "My dummy client33"
+		},
+		"mvRecordAction": "Insert"
+	}`)
 )
 
-var requestBody = bytes.NewBufferString(`{
-	"APIKEY": "8ccd0b3378ef30a5@m140829",
-	"mvSupplierClient": {
-	  "SupplierClientID": 0,
-	  "SupplierClientType": "Client33",
-	  "SupplierClientName": "My dummy client33"
-	},
-	"mvRecordAction": "Insert"
-}`)
+var (
+	URL string
 
-var productList ProductList
-var supplierClientList SupplierClientList
+	GET string
+	POS string
+
+	KEY string
+
+	HOST string
+
+	RequestBody *bytes.Buffer
+)
+
+var (
+	productList        ProductList
+	supplierClientList SupplierClientList
+)
+
+func Load() {
+	URL = eURL
+
+	GET = eGET
+	POS = ePOS
+
+	KEY = eKEY
+
+	HOST = eHOST
+
+	RequestBody = eRequestBody
+}
 
 // model
 type ProductCost struct {
@@ -60,8 +88,37 @@ type SupplierClientList struct {
 	MvSupplierClient SupplierClient `json:"mvSupplierClient"`
 }
 
+func (l ProductList) convertStringGet() string {
+	var str strings.Builder
+
+	for _, v := range l.MvProducts {
+		str.WriteString(fmt.Sprintf("%v\n", v))
+	}
+
+	return str.String()
+}
+
+func (s SupplierClientList) convertStringPost() string {
+	var str strings.Builder
+
+	str.WriteString(fmt.Sprintf("%v\n", s.MvSupplierClient))
+
+	return str.String()
+}
+
 // repository
-func GetProducts() *http.Response {
+type database struct{}
+
+type Database interface {
+	GetProducts() *http.Response
+	PostProducts() *http.Request
+}
+
+func NewRepository() Database {
+	return &database{}
+}
+
+func (database) GetProducts() *http.Response {
 	response, err := http.Get(URL + GET + KEY)
 	if err != nil {
 		fmt.Println("Get error: ", err)
@@ -70,8 +127,8 @@ func GetProducts() *http.Response {
 	return response
 }
 
-func PostProducts() *http.Request {
-	response, err := http.NewRequest("POST", URL+POS, requestBody)
+func (database) PostProducts() *http.Request {
+	response, err := http.NewRequest("POST", URL+POS, RequestBody)
 	if err != nil {
 		fmt.Println("Post error: ", err)
 	}
@@ -80,8 +137,21 @@ func PostProducts() *http.Request {
 }
 
 // service
-func GetProductsService() ProductList {
-	results := GetProducts()
+type holder struct {
+	holdList Database
+}
+
+type Holder interface {
+	GetProductsService() ProductList
+	PostProductsService() SupplierClientList
+}
+
+func NewService(d Database) Holder {
+	return holder{holdList: d}
+}
+
+func (h holder) GetProductsService() ProductList {
+	results := h.holdList.GetProducts()
 
 	err := json.NewDecoder(results.Body).Decode(&productList)
 	if err != nil {
@@ -91,8 +161,8 @@ func GetProductsService() ProductList {
 	return productList
 }
 
-func PostProductsService() SupplierClientList {
-	results := PostProducts()
+func (h holder) PostProductsService() SupplierClientList {
+	results := h.holdList.PostProducts()
 
 	err := json.NewDecoder(results.Body).Decode(&supplierClientList)
 	if err != nil {
@@ -103,41 +173,66 @@ func PostProductsService() SupplierClientList {
 }
 
 // controller
-func GetProductsController(w http.ResponseWriter, r *http.Request) {
-	results := GetProductsService()
-	fmt.Fprintf(w, convertStringGet(results))
+type sender struct {
+	sendList Holder
 }
 
-func PostProductsController(w http.ResponseWriter, r *http.Request) {
-	results := PostProductsService()
-	fmt.Fprintf(w, convertStringPost(results))
+type Sender interface {
+	GetProductsController(w http.ResponseWriter, r *http.Request)
+	PostProductsController(w http.ResponseWriter, r *http.Request)
 }
 
-func convertStringGet(listeGet ProductList) string {
-	var str strings.Builder
-
-	for _, v := range listeGet.MvProducts {
-		str.WriteString(fmt.Sprintf("%v\n", v))
-	}
-
-	return str.String()
+func NewController(h Holder) Sender {
+	return &sender{sendList: h}
 }
 
-func convertStringPost(listePost SupplierClientList) string {
-	var str strings.Builder
+func (s sender) GetProductsController(w http.ResponseWriter, r *http.Request) {
+	results := s.sendList.GetProductsService()
+	fmt.Fprintf(w, results.convertStringGet())
+}
 
-	str.WriteString(fmt.Sprintf("%v\n", listePost.MvSupplierClient))
-
-	return str.String()
+func (s sender) PostProductsController(w http.ResponseWriter, r *http.Request) {
+	results := s.sendList.PostProductsService()
+	fmt.Fprintf(w, results.convertStringPost())
 }
 
 // router
-func Run(host string) {
-	http.HandleFunc("/get", GetProductsController)
-	http.HandleFunc("/post", PostProductsController)
+type router struct {
+	routeList Sender
+}
+
+type Router interface {
+	Run(host string)
+}
+
+func NewRouter(s Sender) Router {
+	router := &router{routeList: s}
+	router.setup()
+
+	return router
+}
+
+func (r *router) Run(host string) {
 	http.ListenAndServe(host, nil)
 }
 
+func (r *router) setup() {
+	http.HandleFunc("/get", r.routeList.GetProductsController)
+	http.HandleFunc("/post", r.routeList.PostProductsController)
+}
+
 func main() {
-	Run(HOST)
+	Load()
+	set := settingValues()
+
+	set.Run(HOST)
+}
+
+func settingValues() Router {
+	repo := NewRepository()
+	serv := NewService(repo)
+	cont := NewController(serv)
+	rout := NewRouter(cont)
+
+	return rout
 }
