@@ -10,6 +10,7 @@ import (
 var (
 	productList        model.ProductList
 	supplierClientList model.SupplierClientList
+	inventoryList      model.InventoryList
 )
 
 type holder struct {
@@ -19,6 +20,7 @@ type holder struct {
 type Holder interface {
 	GetProductsService() model.ProductList
 	PostProductsService() model.SupplierClientList
+	GetInventoryService() model.InventoryList
 }
 
 func NewService(d repository.Database) Holder {
@@ -45,4 +47,15 @@ func (h holder) PostProductsService() model.SupplierClientList {
 	}
 
 	return supplierClientList
+}
+
+func (h holder) GetInventoryService() model.InventoryList {
+	results := h.holdList.GetInventory()
+
+	err := json.NewDecoder(results.Body).Decode(&inventoryList)
+	if err != nil {
+		fmt.Println("responseGetInventory is not parsed: ", err)
+	}
+
+	return inventoryList
 }

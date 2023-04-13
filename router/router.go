@@ -27,4 +27,5 @@ func (r *router) Run(host string) {
 func (r *router) setup() {
 	http.HandleFunc("/get", r.routeList.GetProductsController)
 	http.HandleFunc("/post", r.routeList.PostProductsController)
+	http.HandleFunc("/getinventory", r.routeList.GetInventoryController)
 }

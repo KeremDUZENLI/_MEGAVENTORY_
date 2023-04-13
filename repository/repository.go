@@ -12,10 +12,16 @@ type database struct{}
 type Database interface {
 	GetProducts() *http.Response
 	PostProducts() *http.Request
+	GetInventory() *http.Response
 }
 
 func NewRepository() Database {
 	return &database{}
+}
+
+func verifyConncetion(response *http.Response) {
+	fmt.Println(response.Status)
+	fmt.Println(response.Header.Get("Content-Type"))
 }
 
 func (database) GetProducts() *http.Response {
@@ -24,6 +30,7 @@ func (database) GetProducts() *http.Response {
 		fmt.Println("Get error: ", err)
 	}
 
+	verifyConncetion(response)
 	return response
 }
 
@@ -33,5 +40,16 @@ func (database) PostProducts() *http.Request {
 		fmt.Println("Post error: ", err)
 	}
 
+	return response
+}
+
+func (database) GetInventory() *http.Response {
+	param := "&ShowOnlyProductsWithPositiveQty=1"
+	response, err := http.Get(env.URL + env.GETINVENTORY + env.KEY + param)
+	if err != nil {
+		fmt.Println("GetInventory error: ", err)
+	}
+
+	verifyConncetion(response)
 	return response
 }
