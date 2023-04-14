@@ -35,7 +35,9 @@ func (s sender) PostProductsController(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s sender) GetInventoryController(w http.ResponseWriter, r *http.Request) {
-	results := s.sendList.GetInventoryService()
+	results, err := s.sendList.GetInventoryService()
+	errorCheck(err, w)
+
 	fmt.Fprint(w, results.ConvertStringInventory())
 }
 
@@ -44,11 +46,19 @@ func (s sender) GetProductsByIdController(c *gin.Context) {
 	sku := c.Param("sku")
 	id, _ := strconv.Atoi(sku)
 
-	results, err := s.sendList.GetProductsByIdService(id)
+	results, err := s.sendList.GetProductsByIdService()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, results.ConvertGinGet())
+	c.JSON(http.StatusOK, results.ConvertGinGet(id))
+}
+
+// HELP ----------------------------------------------------------------
+func errorCheck(err error, w http.ResponseWriter) {
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

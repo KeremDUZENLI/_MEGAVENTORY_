@@ -20,8 +20,8 @@ type holder struct {
 type Holder interface {
 	GetProductsService() model.ProductList
 	PostProductsService() model.SupplierClientList
-	GetInventoryService() model.InventoryList
-	GetProductsByIdService(id int) (model.ProductList, error)
+	GetInventoryService() (model.InventoryList, error)
+	GetProductsByIdService() (model.ProductList, error)
 }
 
 func NewService(d repository.Database) Holder {
@@ -50,18 +50,11 @@ func (h holder) PostProductsService() model.SupplierClientList {
 	return supplierClientList
 }
 
-func (h holder) GetInventoryService() model.InventoryList {
-	results := h.holdList.GetInventory()
-
-	err := json.NewDecoder(results.Body).Decode(&inventoryList)
-	if err != nil {
-		fmt.Println("responseGetInventory is not parsed: ", err)
-	}
-
-	return inventoryList
+func (h holder) GetInventoryService() (model.InventoryList, error) {
+	return h.holdList.GetInventory()
 }
 
 // GIN ----------------------------------------------------------------
-func (h holder) GetProductsByIdService(id int) (model.ProductList, error) {
-	return h.holdList.GetProductsById(id)
+func (h holder) GetProductsByIdService() (model.ProductList, error) {
+	return h.holdList.GetProductsById()
 }

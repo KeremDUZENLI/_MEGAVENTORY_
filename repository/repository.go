@@ -11,7 +11,9 @@ import (
 )
 
 var (
-	productList model.ProductList
+	productList        model.ProductList
+	supplierClientList model.SupplierClientList
+	inventoryList      model.InventoryList
 )
 
 type database struct{}
@@ -19,17 +21,12 @@ type database struct{}
 type Database interface {
 	GetProducts() *http.Response
 	PostProducts() *http.Request
-	GetInventory() *http.Response
-	GetProductsById(id int) (model.ProductList, error)
+	GetInventory() (model.InventoryList, error)
+	GetProductsById() (model.ProductList, error)
 }
 
 func NewRepository() Database {
 	return &database{}
-}
-
-func verifyConncetion(response *http.Response) {
-	fmt.Println(response.Status)
-	fmt.Println(response.Header.Get("Content-Type"))
 }
 
 func (database) GetProducts() *http.Response {
@@ -51,28 +48,44 @@ func (database) PostProducts() *http.Request {
 	return response
 }
 
-func (database) GetInventory() *http.Response {
-	param := "&ShowOnlyProductsWithPositiveQty=1"
-	response, err := http.Get(env.URL + env.GETINVENTORY + env.KEY + param)
-	if err != nil {
-		fmt.Println("GetInventory error: ", err)
+func (database) GetInventory() (model.InventoryList, error) {
+	if err := getData(env.URL+env.GETINVENTORY+env.KEY+env.PARAM, &inventoryList); err != nil {
+		return model.InventoryList{}, err
 	}
 
-	verifyConncetion(response)
-	return response
+	return inventoryList, nil
 }
 
 // GIN ----------------------------------------------------------------
-func (database) GetProductsById(id int) (model.ProductList, error) {
-	response, err := http.Get(env.URL + env.GET + env.KEY)
+func (database) GetProductsById() (model.ProductList, error) {
+	if err := getData(env.URL+env.GET+env.KEY, &productList); err != nil {
+		return model.ProductList{}, err
+	}
+
+	return productList, nil
+}
+
+// HELP ----------------------------------------------------------------
+func getData(url string, parseStruct any) error {
+	response := connectUrl(url)
+
+	if err := json.NewDecoder(response.Body).Decode(&parseStruct); err != nil {
+		return errors.New("decode error")
+	}
+
+	return nil
+}
+
+func connectUrl(url string) *http.Response {
+	response, err := http.Get(url)
 	if err != nil {
 		fmt.Println("Get error: ", err)
 	}
 
-	json.NewDecoder(response.Body).Decode(&productList)
-	if err != nil {
-		return model.ProductList{}, errors.New("responseGet is not parsed")
-	}
+	return response
+}
 
-	return productList, nil
+func verifyConncetion(response *http.Response) {
+	fmt.Println(response.Status)
+	fmt.Println(response.Header.Get("Content-Type"))
 }

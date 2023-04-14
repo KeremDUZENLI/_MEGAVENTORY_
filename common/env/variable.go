@@ -11,6 +11,7 @@ var (
 	GET          string
 	POS          string
 	GETINVENTORY string
+	PARAM        string
 	KEY          string
 	HOST         string
 	HOSTGIN      string
@@ -24,6 +25,7 @@ func Load() {
 	GET = os.Getenv("GET")
 	POS = os.Getenv("POS")
 	GETINVENTORY = os.Getenv("GETINVENTORY")
+	PARAM = os.Getenv("PARAM")
 	KEY = os.Getenv("KEY")
 	HOST = os.Getenv("HOST")
 	HOSTGIN = os.Getenv("HOSTGIN")

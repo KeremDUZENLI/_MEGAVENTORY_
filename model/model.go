@@ -52,18 +52,20 @@ func (s InventoryList) ConvertStringInventory() string {
 }
 
 // GIN ----------------------------------------------------------------
-func (l ProductList) ConvertGinGet() gin.H {
-	products := make([]gin.H, 0, len(l.MvProducts))
+func (l ProductList) ConvertGinGet(id int) gin.H {
+	var product gin.H
 
 	for _, v := range l.MvProducts {
-		product := gin.H{
-			"sku":           v.ProductID,
-			"description":   v.ProductDescription,
-			"salesPrice":    v.ProductSellingPrice,
-			"purchasePrice": v.ProductPurchasePrice,
+		if v.ProductID == id {
+			product = gin.H{
+				"sku":           v.ProductID,
+				"description":   v.ProductDescription,
+				"salesPrice":    v.ProductSellingPrice,
+				"purchasePrice": v.ProductPurchasePrice,
+			}
+			break
 		}
-		products = append(products, product)
 	}
 
-	return gin.H{"products": products}
+	return gin.H{"products": product}
 }
