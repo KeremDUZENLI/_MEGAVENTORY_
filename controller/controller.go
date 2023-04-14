@@ -25,19 +25,20 @@ func NewController(h service.Holder) Sender {
 }
 
 func (s sender) GetProductsController(w http.ResponseWriter, r *http.Request) {
-	results := s.sendList.GetProductsService()
+	results, err := s.sendList.GetProductsService()
+	errorCheck(w, err)
 	fmt.Fprint(w, results.ConvertStringGet())
 }
 
 func (s sender) PostProductsController(w http.ResponseWriter, r *http.Request) {
-	results := s.sendList.PostProductsService()
+	results, err := s.sendList.PostProductsService()
+	errorCheck(w, err)
 	fmt.Fprint(w, results.ConvertStringPost())
 }
 
 func (s sender) GetInventoryController(w http.ResponseWriter, r *http.Request) {
 	results, err := s.sendList.GetInventoryService()
-	errorCheck(err, w)
-
+	errorCheck(w, err)
 	fmt.Fprint(w, results.ConvertStringInventory())
 }
 
@@ -56,7 +57,7 @@ func (s sender) GetProductsByIdController(c *gin.Context) {
 }
 
 // HELP ----------------------------------------------------------------
-func errorCheck(err error, w http.ResponseWriter) {
+func errorCheck(w http.ResponseWriter, err error) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
