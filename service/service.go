@@ -21,6 +21,7 @@ type Holder interface {
 	GetProductsService() model.ProductList
 	PostProductsService() model.SupplierClientList
 	GetInventoryService() model.InventoryList
+	GetProductsByIdService(id int) (model.ProductList, error)
 }
 
 func NewService(d repository.Database) Holder {
@@ -58,4 +59,9 @@ func (h holder) GetInventoryService() model.InventoryList {
 	}
 
 	return inventoryList
+}
+
+// GIN ----------------------------------------------------------------
+func (h holder) GetProductsByIdService(id int) (model.ProductList, error) {
+	return h.holdList.GetProductsById(id)
 }

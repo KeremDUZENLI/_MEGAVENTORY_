@@ -3,6 +3,8 @@ package model
 import (
 	"fmt"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (l ProductList) ConvertStringGet() string {
@@ -15,8 +17,6 @@ func (l ProductList) ConvertStringGet() string {
 			v.ProductSellingPrice,
 			v.ProductPurchasePrice))
 	}
-
-	// printer(&str, l.MvProducts...)
 
 	return str.String()
 }
@@ -51,8 +51,19 @@ func (s InventoryList) ConvertStringInventory() string {
 	return str.String()
 }
 
-func printer[T any](str *strings.Builder, base ...T) {
-	for _, model := range base {
-		str.WriteString(fmt.Sprintf("%v\n\n", model))
+// GIN ----------------------------------------------------------------
+func (l ProductList) ConvertGinGet() gin.H {
+	products := make([]gin.H, 0, len(l.MvProducts))
+
+	for _, v := range l.MvProducts {
+		product := gin.H{
+			"sku":           v.ProductID,
+			"description":   v.ProductDescription,
+			"salesPrice":    v.ProductSellingPrice,
+			"purchasePrice": v.ProductPurchasePrice,
+		}
+		products = append(products, product)
 	}
+
+	return gin.H{"products": products}
 }

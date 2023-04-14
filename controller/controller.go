@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"megaventory/service"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 type sender struct {
@@ -14,6 +17,7 @@ type Sender interface {
 	GetProductsController(w http.ResponseWriter, r *http.Request)
 	PostProductsController(w http.ResponseWriter, r *http.Request)
 	GetInventoryController(w http.ResponseWriter, r *http.Request)
+	GetProductsByIdController(c *gin.Context)
 }
 
 func NewController(h service.Holder) Sender {
@@ -33,4 +37,18 @@ func (s sender) PostProductsController(w http.ResponseWriter, r *http.Request) {
 func (s sender) GetInventoryController(w http.ResponseWriter, r *http.Request) {
 	results := s.sendList.GetInventoryService()
 	fmt.Fprint(w, results.ConvertStringInventory())
+}
+
+// GIN ----------------------------------------------------------------
+func (s sender) GetProductsByIdController(c *gin.Context) {
+	sku := c.Param("sku")
+	id, _ := strconv.Atoi(sku)
+
+	results, err := s.sendList.GetProductsByIdService(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, results.ConvertGinGet())
 }

@@ -2,9 +2,16 @@ package repository
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"megaventory/common/env"
+	"megaventory/model"
 	"net/http"
+)
+
+var (
+	productList model.ProductList
 )
 
 type database struct{}
@@ -13,6 +20,7 @@ type Database interface {
 	GetProducts() *http.Response
 	PostProducts() *http.Request
 	GetInventory() *http.Response
+	GetProductsById(id int) (model.ProductList, error)
 }
 
 func NewRepository() Database {
@@ -52,4 +60,19 @@ func (database) GetInventory() *http.Response {
 
 	verifyConncetion(response)
 	return response
+}
+
+// GIN ----------------------------------------------------------------
+func (database) GetProductsById(id int) (model.ProductList, error) {
+	response, err := http.Get(env.URL + env.GET + env.KEY)
+	if err != nil {
+		fmt.Println("Get error: ", err)
+	}
+
+	json.NewDecoder(response.Body).Decode(&productList)
+	if err != nil {
+		return model.ProductList{}, errors.New("responseGet is not parsed")
+	}
+
+	return productList, nil
 }

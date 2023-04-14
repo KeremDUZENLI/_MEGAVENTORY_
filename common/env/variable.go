@@ -13,6 +13,7 @@ var (
 	GETINVENTORY string
 	KEY          string
 	HOST         string
+	HOSTGIN      string
 	RequestBody  []byte
 )
 
@@ -25,5 +26,6 @@ func Load() {
 	GETINVENTORY = os.Getenv("GETINVENTORY")
 	KEY = os.Getenv("KEY")
 	HOST = os.Getenv("HOST")
+	HOSTGIN = os.Getenv("HOSTGIN")
 	RequestBody = requestBodyMapper()
 }

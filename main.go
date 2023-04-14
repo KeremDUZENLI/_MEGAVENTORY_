@@ -12,7 +12,12 @@ func main() {
 	env.Load()
 	router := settingValues()
 
-	router.Run(env.HOST)
+	go router.Run(env.HOST)
+	go router.RunGin(env.HOSTGIN)
+
+	// channel to keep the program running
+	done := make(chan bool)
+	<-done
 }
 
 func settingValues() router.Router {
