@@ -23,7 +23,6 @@ type Database interface {
 	GetProducts() (model.ProductList, error)
 	PostProducts() (model.SupplierClientList, error)
 	GetInventory() (model.InventoryList, error)
-	GetProductsById() (model.ProductList, error)
 }
 
 func NewRepository() Database {
@@ -54,15 +53,6 @@ func (database) GetInventory() (model.InventoryList, error) {
 	return inventoryList, nil
 }
 
-// GIN ----------------------------------------------------------------
-func (database) GetProductsById() (model.ProductList, error) {
-	if err := getData(env.URL+env.GET+env.KEY, &productList); err != nil {
-		return model.ProductList{}, err
-	}
-
-	return productList, nil
-}
-
 // HELP ----------------------------------------------------------------
 func getData(url string, parseStruct any) error {
 	response := getFromUrl(url)
@@ -75,15 +65,6 @@ func getData(url string, parseStruct any) error {
 	return nil
 }
 
-func getFromUrl(url string) *http.Response {
-	response, err := http.Get(url)
-	if err != nil {
-		fmt.Println("Get error: ", err)
-	}
-
-	return response
-}
-
 func postData(url string, requestBody []byte, parseStruct any) error {
 	verifyConnection(postToUrl(url, requestBody))
 
@@ -93,6 +74,15 @@ func postData(url string, requestBody []byte, parseStruct any) error {
 	}
 
 	return nil
+}
+
+func getFromUrl(url string) *http.Response {
+	response, err := http.Get(url)
+	if err != nil {
+		fmt.Println("Get error: ", err)
+	}
+
+	return response
 }
 
 func postToUrl(url string, requestBody []byte) *http.Request {
@@ -107,12 +97,12 @@ func postToUrl(url string, requestBody []byte) *http.Request {
 func verifyConnection(r interface{}) {
 	switch response := r.(type) {
 	case *http.Response:
-		fmt.Println(response.Status)
-		fmt.Println(response.Header.Get("Content-Type"))
+		fmt.Printf("\nResponse Status: \t%v", response.Status)
+		fmt.Printf("\nResponse Header: \t%v\n", response.Header.Get("Content-Type"))
 	case *http.Request:
 		request, _ := client.Do(response)
-		fmt.Println(request.Status)
-		fmt.Println(request.Header.Get("Content-Type"))
+		fmt.Printf("\nRequest Status: \t%v", request.Status)
+		fmt.Printf("\nRequest Header: \t%v\n", request.Header.Get("Content-Type"))
 	default:
 		fmt.Println("Invalid type")
 	}
