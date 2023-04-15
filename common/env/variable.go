@@ -12,7 +12,7 @@ var (
 	POS          string
 	GETINVENTORY string
 	PARAM        string
-	KEY          string
+	APIKEY       string
 	HOST         string
 	HOSTGIN      string
 	RequestBody  []byte
@@ -26,7 +26,7 @@ func Load() {
 	POS = os.Getenv("POS")
 	GETINVENTORY = os.Getenv("GETINVENTORY")
 	PARAM = os.Getenv("PARAM")
-	KEY = os.Getenv("KEY")
+	APIKEY = os.Getenv("APIKEY")
 	HOST = os.Getenv("HOST")
 	HOSTGIN = os.Getenv("HOSTGIN")
 	RequestBody = requestBodyMapper()

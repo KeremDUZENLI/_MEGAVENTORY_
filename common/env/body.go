@@ -19,7 +19,7 @@ var (
 )
 
 var eRequestBody = map[string]interface{}{
-	"APIKEY": KEY,
+	"APIKEY": APIKEY,
 	"mvSupplierClient": map[string]interface{}{
 		"SupplierClientName":      SupplierClientName,
 		"SupplierClientEmail":     SupplierClientEmail,

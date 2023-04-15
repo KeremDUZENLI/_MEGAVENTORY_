@@ -36,10 +36,6 @@ func MapperInventoryLocation(d *dto.DtoInvenoryLocation) model.Inventory {
 				InventoryLocationID: d.Name,
 				SubLocation:         d.Address,
 			},
-			{
-				InventoryLocationID: d.Name,
-				SubLocation:         d.Address,
-			},
 		},
 	}
 }

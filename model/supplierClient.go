@@ -13,5 +13,5 @@ type SupplierClient struct {
 }
 
 type SupplierClientList struct {
-	MvSupplierClient SupplierClient `json:"mvSupplierClient"`
+	MvSupplierClient SupplierClient `json:"mvSupplierClient" binding:"required"`
 }
