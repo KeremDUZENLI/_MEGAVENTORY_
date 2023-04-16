@@ -4,7 +4,11 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+
+	"megaventory/dto"
 )
+
+var SavedParseStruct dto.DtoSupplierClientHttp
 
 var (
 	URL          string

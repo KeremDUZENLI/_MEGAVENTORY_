@@ -14,7 +14,6 @@ type sender struct {
 type Sender interface {
 	GetProductsController(w http.ResponseWriter, r *http.Request)
 	PostProductsController(w http.ResponseWriter, r *http.Request)
-	PostProductsController2(w http.ResponseWriter, r *http.Request)
 	GetInventoryController(w http.ResponseWriter, r *http.Request)
 
 	GetProductsById(c *gin.Context)

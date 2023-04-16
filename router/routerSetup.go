@@ -9,7 +9,6 @@ import (
 func (r *router) setupHttp() {
 	http.HandleFunc("/get", r.routeList.GetProductsController)
 	http.HandleFunc("/post", r.routeList.PostProductsController)
-	http.HandleFunc("/a", r.routeList.PostProductsController2)
 	http.HandleFunc("/getinventory", r.routeList.GetInventoryController)
 }
 

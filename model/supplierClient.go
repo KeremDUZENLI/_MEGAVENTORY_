@@ -11,7 +11,3 @@ type SupplierClient struct {
 	SupplierClientAddresses []SupplierClientAddress `json:"SupplierClientAddresses"`
 	SupplierClientPhone1    string                  `json:"SupplierClientPhone1"`
 }
-
-type SupplierClientList struct {
-	MvSupplierClient SupplierClient `json:"mvSupplierClient" binding:"required"`
-}

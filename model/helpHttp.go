@@ -19,15 +19,15 @@ func (l ProductList) ConvertStringGet() string {
 	return str.String()
 }
 
-func (s SupplierClientList) ConvertStringPost() string {
+func (s SupplierClient) ConvertStringPost() string {
 	var str strings.Builder
 
-	for _, l := range s.MvSupplierClient.SupplierClientAddresses {
+	for _, l := range s.SupplierClientAddresses {
 		str.WriteString(fmt.Sprintf("-Name: %v\n-E-mail: %v\n-Shipping Address: %v, %v\n-Phone: %v\n\n",
-			s.MvSupplierClient.SupplierClientName,
-			s.MvSupplierClient.SupplierClientEmail,
+			s.SupplierClientName,
+			s.SupplierClientEmail,
 			l.AddressLine1, l.City,
-			s.MvSupplierClient.SupplierClientPhone1))
+			s.SupplierClientPhone1))
 	}
 
 	return str.String()

@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"encoding/json"
 	"megaventory/common/env"
+	"megaventory/dto/mapper"
 	"megaventory/model"
 )
 
@@ -14,12 +14,13 @@ func (database) GetProducts() (model.ProductList, error) {
 	return productList, nil
 }
 
-func (database) PostProducts() (model.SupplierClientList, error) {
-	if err := postData(env.URL+env.POS, env.RequestBody, &supplierClientList); err != nil {
-		return model.SupplierClientList{}, err
+func (database) PostProducts() (model.SupplierClient, error) {
+	if err := postData(env.URL+env.POS, requestBodyMapper(), &dtoSupplierClientHttp); err != nil {
+		return model.SupplierClient{}, err
 	}
 
-	return supplierClientList, nil
+	aMap := mapper.MapperSupplierClientHttp(&dtoSupplierClientHttp)
+	return aMap, nil
 }
 
 func (database) GetInventory() (model.InventoryList, error) {
@@ -28,13 +29,4 @@ func (database) GetInventory() (model.InventoryList, error) {
 	}
 
 	return inventoryList, nil
-}
-
-func requestBodyMapper() []byte {
-	eRequestBody, err := json.Marshal(eRequestBody)
-	if err != nil {
-		panic(err)
-	}
-
-	return eRequestBody
 }

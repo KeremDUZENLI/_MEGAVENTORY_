@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"megaventory/common/env"
 	"net/http"
 )
 
@@ -60,4 +61,13 @@ func verifyConnection(r interface{}) {
 	default:
 		fmt.Println("Invalid type")
 	}
+}
+
+func requestBodyMapper() []byte {
+	eRequestBody, err := json.Marshal(env.SavedParseStruct)
+	if err != nil {
+		fmt.Println("Marshal error: ", err)
+	}
+
+	return eRequestBody
 }
