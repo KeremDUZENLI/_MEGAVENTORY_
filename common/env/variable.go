@@ -15,7 +15,6 @@ var (
 	APIKEY       string
 	HOST         string
 	HOSTGIN      string
-	RequestBody  []byte
 )
 
 func Load() {
@@ -29,5 +28,4 @@ func Load() {
 	APIKEY = os.Getenv("APIKEY")
 	HOST = os.Getenv("HOST")
 	HOSTGIN = os.Getenv("HOSTGIN")
-	RequestBody = requestBodyMapper()
 }

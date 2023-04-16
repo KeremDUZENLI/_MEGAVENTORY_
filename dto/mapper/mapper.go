@@ -14,6 +14,20 @@ func MapperProduct(d *dto.DtoProduct) model.Product {
 	}
 }
 
+func MapperSupplierClientHttp(d *dto.DtoSupplierClientHttp) model.SupplierClient {
+	return model.SupplierClient{
+		SupplierClientName:  d.MvSupplierClient.SupplierClientName,
+		SupplierClientEmail: d.MvSupplierClient.SupplierClientEmail,
+		SupplierClientAddresses: []model.SupplierClientAddress{
+			{
+				AddressLine1: d.MvSupplierClient.SupplierClientAddresses.SupplierClientAddressLine1,
+				City:         d.MvSupplierClient.SupplierClientAddresses.SupplierClientCity,
+			},
+		},
+		SupplierClientPhone1: d.MvSupplierClient.SupplierClientPhone1,
+	}
+}
+
 func MapperSupplierClient(d *dto.DtoSupplierClient) model.SupplierClient {
 	return model.SupplierClient{
 		SupplierClientName:  d.Name,

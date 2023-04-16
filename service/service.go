@@ -13,6 +13,7 @@ type holder struct {
 type Holder interface {
 	GetProductsService() (model.ProductList, error)
 	PostProductsService() (model.SupplierClientList, error)
+	PostProductsService2(dSCH dto.DtoSupplierClientHttp) model.SupplierClient
 	GetInventoryService() (model.InventoryList, error)
 
 	GetProductsByIdService(id int) (model.ProductList, error)

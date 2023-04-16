@@ -1,10 +1,6 @@
 package env
 
-import (
-	"encoding/json"
-	"megaventory/model"
-)
-
+/*
 type Address model.SupplierClientAddress
 
 var (
@@ -37,3 +33,4 @@ func requestBodyMapper() []byte {
 
 	return eRequestBody
 }
+*/

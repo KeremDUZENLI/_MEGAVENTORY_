@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"encoding/json"
 	"megaventory/common/env"
 	"megaventory/model"
 )
@@ -27,4 +28,13 @@ func (database) GetInventory() (model.InventoryList, error) {
 	}
 
 	return inventoryList, nil
+}
+
+func requestBodyMapper() []byte {
+	eRequestBody, err := json.Marshal(eRequestBody)
+	if err != nil {
+		panic(err)
+	}
+
+	return eRequestBody
 }
