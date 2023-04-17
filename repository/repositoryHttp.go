@@ -15,7 +15,7 @@ func (database) GetProducts() (model.ProductList, error) {
 }
 
 func (database) PostProducts() (model.SupplierClient, error) {
-	if err := postData(env.URL+env.POS, requestBodyMapper(), &dtoSupplierClientHttp); err != nil {
+	if err := postData(env.URL+env.POS, marshal(), &dtoSupplierClientHttp); err != nil {
 		return model.SupplierClient{}, err
 	}
 
